@@ -5,7 +5,6 @@ import net.eno.pieces.Piece;
 import net.eno.pieces.PieceType;
 import net.eno.pieces.Position;
 
-import static net.eno.utils.StringUtils.NEWLINE;
 import static net.eno.utils.StringUtils.appendNewLine;
 
 import java.util.Collections;
@@ -56,9 +55,10 @@ public class Board {
     }
 
     private int countSameFilePawn(char file, Color color) {
+        Piece pawn = Piece.createPiece(color, PieceType.PAWN);
         int count = (int)IntStream.rangeClosed(1, 8)
                 .mapToObj(rank -> findPiece(String.valueOf(file) + rank))
-                .filter(piece -> piece.getColor() == color && piece.getPieceType() == PieceType.PAWN)
+                .filter(piece -> piece.equals(pawn))
                 .count();
         return count > 1 ? count : 0;
     }
@@ -89,16 +89,16 @@ public class Board {
 
     public void initializeEmpty() {
         this.board = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            addRank(Rank.createOnePieceRank(Color.NOCOLOR, PieceType.NO_PIECE));
-        }
+        IntStream.range(0, 8)
+                .forEach(i -> addRank(Rank.createOnePieceRank(Color.NOCOLOR, PieceType.NO_PIECE)));
     }
 
     public String showBoard(Color color) {
-        String result = this.board.stream()
-                .map(rank -> appendNewLine(rank.showRank()))
+        boolean isBlack = color == Color.BLACK;
+        return IntStream.range(0, 8)
+                .mapToObj(i -> isBlack ? this.board.get(7 - i) : this.board.get(i))
+                .map(rank -> appendNewLine(rank.showRank(color)))
                 .collect(Collectors.joining());
-        return color != Color.BLACK ? result : new StringBuilder(result).reverse().substring(1) + NEWLINE;
     }
 
 }

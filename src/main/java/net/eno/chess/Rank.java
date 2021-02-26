@@ -7,6 +7,7 @@ import net.eno.pieces.PieceType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class Rank {
 
@@ -18,9 +19,8 @@ public class Rank {
 
     public static Rank createOnePieceRank(Color color, PieceType pieceType) {
         Rank rank = new Rank();
-        for (int i = 0; i < 8; i++) {
-            rank.addPiece(Piece.createPiece(color, pieceType));
-        }
+        IntStream.range(0, 8)
+                .forEach(i -> rank.addPiece((Piece.createPiece(color, pieceType))));
         return rank;
     }
 
@@ -42,8 +42,9 @@ public class Rank {
     }
 
     public int countTargetPiece(Color color, PieceType pieceType) {
+        Piece targetPiece = Piece.createPiece(color, pieceType);
         return (int)this.rank.stream()
-                .filter(piece -> piece.getColor() == color && piece.getPieceType() == pieceType)
+                .filter(piece -> piece.equals(targetPiece))
                 .count();
     }
 
@@ -68,8 +69,10 @@ public class Rank {
                 .collect(Collectors.toList());
     }
 
-    public String showRank() {
-        return this.rank.stream()
+    public String showRank(Color color) {
+        boolean isBlack = color == Color.BLACK;
+        return IntStream.range(0, 8)
+                .mapToObj(i -> isBlack ? this.rank.get(7 - i) : this.rank.get(i))
                 .map(piece -> String.valueOf(piece.getRepresentation(piece.getColor())))
                 .collect(Collectors.joining());
     }
