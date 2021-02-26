@@ -1,13 +1,9 @@
 package net.eno.chess;
 
-import net.eno.pieces.Color;
-import net.eno.pieces.Piece;
-import net.eno.pieces.PieceType;
 import org.junit.jupiter.api.*;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.*;
+
+import net.eno.pieces.*;
 
 import static net.eno.utils.StringUtils.appendNewLine;
 
@@ -64,24 +60,21 @@ public class BoardTest {
     @Test
     @DisplayName("체스판에 해당하는 좌표의 기물을 가져올 수 있어야 한다.")
     public void findPiece() {
-        assertThat(board.findPiece("a8")).isEqualTo(Piece.createPiece(Color.BLACK, PieceType.ROOK));
-        assertThat(board.findPiece("h8")).isEqualTo(Piece.createPiece(Color.BLACK, PieceType.ROOK));
-        assertThat(board.findPiece("a1")).isEqualTo(Piece.createPiece(Color.WHITE, PieceType.ROOK));
-        assertThat(board.findPiece("h1")).isEqualTo(Piece.createPiece(Color.WHITE, PieceType.ROOK));
+        assertThat(board.findPiece(new Position("a8"))).isEqualTo(Piece.createPiece(Color.BLACK, PieceType.ROOK));
+        assertThat(board.findPiece(new Position("h8"))).isEqualTo(Piece.createPiece(Color.BLACK, PieceType.ROOK));
+        assertThat(board.findPiece(new Position("a1"))).isEqualTo(Piece.createPiece(Color.WHITE, PieceType.ROOK));
+        assertThat(board.findPiece(new Position("h1"))).isEqualTo(Piece.createPiece(Color.WHITE, PieceType.ROOK));
     }
 
     @Test
-    @DisplayName("체스판에 임의의 기물을 추가할 수 있어야 한다.")
-    public void move() {
-        System.out.println("> 체스판에 임의의 기물을 추가할 수 있어야 한다.");
-        board.initializeEmpty();
-
-        String position = "b5";
-        Piece piece = Piece.createPiece(Color.BLACK, PieceType.ROOK);
-        board.move(position, piece);
-
-        assertThat(board.findPiece(position)).isEqualTo(piece);
-        System.out.println(board.showBoard(Color.WHITE));
+    @DisplayName("체스판 위에 기물들이 점수별로 정렬되어야 한다.")
+    public void sortByPoint() {
+        System.out.println("> 체스판 위에 기물들이 점수별로 정렬되어야 한다.");
+        board.sortByPiecePoint(Color.WHITE, true)
+                .forEach(piece -> System.out.println(piece.getColor() + " " + piece.getPieceType() + " " + piece.getPoint()));
+        System.out.println();
+        board.sortByPiecePoint(Color.WHITE, false)
+                .forEach(piece -> System.out.println(piece.getColor() + " " + piece.getPieceType() + " " + piece.getPoint()));
     }
 
     @Test
@@ -90,15 +83,15 @@ public class BoardTest {
         System.out.println("> 체스판 위에 흰색, 검은색 기물의 점수가 일치해야 한다.");
         board.initializeEmpty();
 
-        addPiece("b6", Piece.createPiece(Color.BLACK, PieceType.PAWN));
-        addPiece("e6", Piece.createPiece(Color.BLACK, PieceType.QUEEN));
-        addPiece("b8", Piece.createPiece(Color.BLACK, PieceType.KING));
-        addPiece("c8", Piece.createPiece(Color.BLACK, PieceType.ROOK));
+        board.setPiece(new Position("b6"), Piece.createPiece(Color.BLACK, PieceType.PAWN));
+        board.setPiece(new Position("e6"), Piece.createPiece(Color.BLACK, PieceType.QUEEN));
+        board.setPiece(new Position("b8"), Piece.createPiece(Color.BLACK, PieceType.KING));
+        board.setPiece(new Position("c8"), Piece.createPiece(Color.BLACK, PieceType.ROOK));
 
-        addPiece("f2", Piece.createPiece(Color.WHITE, PieceType.PAWN));
-        addPiece("f3", Piece.createPiece(Color.WHITE, PieceType.PAWN));
-        addPiece("e1", Piece.createPiece(Color.WHITE, PieceType.ROOK));
-        addPiece("f1", Piece.createPiece(Color.WHITE, PieceType.KING));
+        board.setPiece(new Position("f2"), Piece.createPiece(Color.WHITE, PieceType.PAWN));
+        board.setPiece(new Position("f3"), Piece.createPiece(Color.WHITE, PieceType.PAWN));
+        board.setPiece(new Position("e1"), Piece.createPiece(Color.WHITE, PieceType.ROOK));
+        board.setPiece(new Position("f1"), Piece.createPiece(Color.WHITE, PieceType.KING));
 
         assertThat(board.calculatePoint(Color.BLACK)).isEqualTo(15.0);
         assertThat(board.calculatePoint(Color.WHITE)).isEqualTo(6.0);
@@ -106,29 +99,18 @@ public class BoardTest {
         System.out.println(board.showBoard(Color.WHITE));
     }
 
-    private void addPiece(String position, Piece piece) {
-        board.move(position, piece);
-    }
-
     @Test
-    @DisplayName("체스판 위에 기물들이 점수별로 정렬되어야 한다.")
-    public void sortByPoint() {
-        System.out.println("> 체스판 위에 기물들이 점수별로 정렬되어야 한다.");
-        List<Piece> pieceList;
+    @DisplayName("체스판에 기물을 이동할 수 있어야 한다.")
+    public void move() {
+        System.out.println("> 체스판에 기물을 이동할 수 있어야 한다.");
+        Position sourcePosition = new Position("b2");
+        Position targetPosition = new Position("b3");
 
-        pieceList = board.sortByPiecePoint(Color.WHITE, true);
-        showPieceList(pieceList);
+        board.movePiece(sourcePosition, targetPosition);
+        assertThat(board.findPiece(sourcePosition)).isEqualTo(Piece.createPiece(Color.NOCOLOR, PieceType.NO_PIECE));
+        assertThat(board.findPiece(targetPosition)).isEqualTo(Piece.createPiece(Color.WHITE, PieceType.PAWN));
 
-        System.out.println();
-
-        pieceList = board.sortByPiecePoint(Color.WHITE, false);
-        showPieceList(pieceList);
-    }
-
-    private void showPieceList(List<Piece> pieceList) {
-        for (Piece piece : pieceList) {
-            System.out.println(piece.getColor() + " " + piece.getPieceType() + " " + piece.getPoint());
-        }
+        System.out.println(board.showBoard(Color.WHITE));
     }
 
 }
