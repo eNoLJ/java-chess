@@ -1,13 +1,9 @@
 package net.eno.chess;
 
-import net.eno.pieces.Color;
-import net.eno.pieces.Piece;
-import net.eno.pieces.PieceType;
+import net.eno.pieces.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.*;
+import java.util.stream.*;
 
 public class Rank {
 
@@ -41,19 +37,12 @@ public class Rank {
         rank.add(piece);
     }
 
-    public int countTargetPiece(Color color, PieceType pieceType) {
-        Piece targetPiece = Piece.createPiece(color, pieceType);
-        return (int)this.rank.stream()
-                .filter(piece -> piece.equals(targetPiece))
-                .count();
+    public Piece findPiece(Position position) {
+        return this.rank.get(position.getFileIndex());
     }
 
-    public Piece findPiece(int fileIndex) {
-        return this.rank.get(fileIndex);
-    }
-
-    public void move(int fileIndex, Piece piece) {
-        this.rank.set(fileIndex, piece);
+    public void setPiece(Position position, Piece piece) {
+        this.rank.set(position.getFileIndex(), piece);
     }
 
     public double calculateRankPoint(Color color) {
@@ -61,6 +50,13 @@ public class Rank {
                 .filter(piece -> piece.getColor() == color)
                 .mapToDouble(Piece::getPoint)
                 .sum();
+    }
+
+    public int countTargetPiece(Color color, PieceType pieceType) {
+        Piece targetPiece = Piece.createPiece(color, pieceType);
+        return (int)this.rank.stream()
+                .filter(piece -> piece.equals(targetPiece))
+                .count();
     }
 
     public List<Piece> getPieceListByColor(Color color) {
