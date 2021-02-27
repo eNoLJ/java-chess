@@ -88,7 +88,7 @@ public class Board {
         List<Piece> pieceList = this.board.stream()
                 .map(rank -> rank.getPieceListByColor(color))
                 .flatMap(List::stream)
-                .sorted()
+                .sorted(Comparator.comparingDouble(Piece::getPoint))
                 .collect(Collectors.toList());
         if (!isAscending) {
             Collections.reverse(pieceList);
