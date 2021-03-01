@@ -67,8 +67,9 @@ public class Rank {
 
     public String showRank(Color color) {
         boolean isBlack = color == Color.BLACK;
-        return IntStream.range(0, 8)
-                .mapToObj(i -> isBlack ? this.rank.get(7 - i) : this.rank.get(i))
+        int rankSize = this.rank.size();
+        return IntStream.range(0, rankSize)
+                .mapToObj(i -> isBlack ? this.rank.get((rankSize - 1) - i) : this.rank.get(i))
                 .map(piece -> String.valueOf(piece.getRepresentation(piece.getColor())))
                 .collect(Collectors.joining());
     }

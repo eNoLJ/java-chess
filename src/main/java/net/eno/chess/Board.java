@@ -75,7 +75,7 @@ public class Board {
                 .mapToObj(rank -> findPiece(new Position(String.valueOf(file) + rank)))
                 .filter(piece -> piece.equals(pawn))
                 .count();
-        return count > 1 ? count : 0;
+        return (count > 1) ? count : 0;
     }
 
     public int countTargetPiece(Color color, PieceType pieceType) {
@@ -98,8 +98,9 @@ public class Board {
 
     public String showBoard(Color color) {
         boolean isBlack = color == Color.BLACK;
-        return IntStream.range(0, 8)
-                .mapToObj(i -> isBlack ? this.board.get(7 - i) : this.board.get(i))
+        int boardSize = this.board.size();
+        return IntStream.range(0, boardSize)
+                .mapToObj(i -> isBlack ? this.board.get((boardSize - 1) - i) : this.board.get(i))
                 .map(rank -> appendNewLine(rank.showRank(color)))
                 .collect(Collectors.joining());
     }
